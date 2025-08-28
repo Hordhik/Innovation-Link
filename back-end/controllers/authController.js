@@ -3,6 +3,10 @@ const users = [
   { username: 'manikant', password: '1234', role: 'startup' },
   { username: 'arcuser', password: '1234', role: 'startup' },
   { username: 'luciduser', password: '1234', role: 'startup' },
+  // Investor users
+  { username: 'investor1', password: '1234', role: 'investor' },
+  { username: 'investor2', password: '1234', role: 'investor' },
+  { username: 'investor3', password: '1234', role: 'investor' },
 ];
 
 export const login = (req, res) => {
