@@ -1,11 +1,11 @@
-import { getProjectForUser } from '../Portal/projectsConfig';
+
 import React, { useState } from 'react'
 import './LogIn.css'
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/NavBar/logo.png';
+import Axios from 'axios';
 import googleIcon from '../assets/Authentication/google.svg';
 import login from '../assets/Authentication/login.png';
-
 
 const LogIn = () => {
   const navigate = useNavigate();
@@ -24,8 +24,6 @@ const LogIn = () => {
     setError('');
   };
 
-  // Remove hardcoded login data; use backend API instead
-
   const handleCreateAccountClick = () => {
     navigate('/auth/signup');
   };
@@ -39,20 +37,42 @@ const LogIn = () => {
     if (error) setError('');
   };
 
-  const handleLogin = (e) => {
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    // Predefined credentials
-    if (formData.username === 'manikant' && formData.password === '1234') {
-      localStorage.setItem('il_token', 'dummy_token');
-      localStorage.setItem('il_role', userType);
-      // Use userProjectMap via getProjectForUser
-      const projectUrl = getProjectForUser(formData.username);
-      navigate(`/S/${projectUrl}/home`);
-    } else {
-      setError('Invalid username or password');
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:5001/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.username,   // 👈 sending name as username
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      // Save token + role
+      localStorage.setItem("il_token", data.token);
+      localStorage.setItem("il_role", userType);
+
+      // Navigate to dashboard
+      const typeUrl = userType === "investor" ? "I" : "S";
+      navigate(`/${typeUrl}/dashboard`);
+    } catch (err) {
+      setError(err.message || "Server error. Try again later.");
     }
   };
+
+
+
 
   return (
     <div className="login-page">
